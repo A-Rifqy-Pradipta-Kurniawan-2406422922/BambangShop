@@ -48,15 +48,15 @@ You can install Postman via this website: https://www.postman.com/downloads/
     (You might want to use `cargo check` if you only need to verify your work without running the app.)
 
 ## Mandatory Checklists (Publisher)
--   [ ] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
+-   [x] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
 -   **STAGE 1: Implement models and repositories**
-    -   [ ] Commit: `Create Subscriber model struct.`
-    -   [ ] Commit: `Create Notification model struct.`
-    -   [ ] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
-    -   [ ] Commit: `Implement add function in Subscriber repository.`
-    -   [ ] Commit: `Implement list_all function in Subscriber repository.`
-    -   [ ] Commit: `Implement delete function in Subscriber repository.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
+    -   [x] Commit: `Create Subscriber model struct.`
+    -   [x] Commit: `Create Notification model struct.`
+    -   [x] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
+    -   [x] Commit: `Implement add function in Subscriber repository.`
+    -   [x] Commit: `Implement list_all function in Subscriber repository.`
+    -   [x] Commit: `Implement delete function in Subscriber repository.`
+    -   [x] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
     -   [ ] Commit: `Create Notification service struct skeleton.`
     -   [ ] Commit: `Implement subscribe function in Notification service.`
@@ -77,6 +77,17 @@ This is the place for you to write reflections:
 ### Mandatory (Publisher) Reflections
 
 #### Reflection Publisher-1
+>1. In the Observer pattern diagram explained by the Head First Design Pattern book, Subscriber is defined as an interface. Explain based on your understanding of Observer design patterns, do we still need an interface (or trait in Rust) in this BambangShop case, or a single Model struct is enough?
+
+Menurut saya, untuk kasus BambangShop saat ini, satu struct `Subscriber` sudah cukup dan tambahan belum wajib. Di Observer pattern, interface dipakai supaya banyak tipe observer bisa diperlakukan sama lewat fungsi `update()`. Di implementasi sekarang, observer kita cuma satu bentuk data dan endpoint callback yang sama, jadi belum ada variasi behaviour yang butuh abstraction terpisah. Trait akan berguna jika ada beberapa jenis subscriber dengan cara notifikasi berbeda (seperti webhook atau email) supaya service tetap bergantung ke kontrak, bukan implementasi konkret.
+
+>2. id in Program and url in Subscriber is intended to be unique. Explain based on your understanding, is using Vec (list) suﬃcient or using DashMap (map/dictionary) like we currently use is necessary for this case?
+
+Untuk `id` Product dan `url` Subscriber yang harus unique, `Vec` dapat dipakai tetapi kurang tepat untuk kasus ini. Dengan `Vec`, pengecekan unik, update, dan delete perlu O(n) kompleksitas, jadi tidak efisien saat data membesar. `DashMap` lebih cocok karena akses menggunakan key sehingga kompleksitas O(1), sekaligus menggunakan penyimpanan berbasis unique key. Jadi untuk kasus repository yang sering search by key, map/dictionary lebih cocok dibanding list.
+
+>3. When programming using Rust, we are enforced by rigorous compiler constraints to make a thread-safe program. In the case of the List of Subscribers (SUBSCRIBERS) static variable, we used the DashMap external library for thread safe HashMap. Explain based on your understanding of design patterns, do we still need DashMap or we can implement Singleton pattern instead?
+
+Kita tetap membutuhkan `DashMap`, hanya singleton saja tidak menyelesaikan masalah thread-safety. Singleton hanya menyelesaikan instance tunggal, tapi masih tidak safe saat dijalankan paralel. Pada Rocket, request dapat diproses concurrent, jadi shared state harus aman terhadap race con. `DashMap` memberi jaminan concurrent access tanpa setup manual lock. Jadi di sini pola Singleton dan thread-safe collection bukan saling menggantikan, tapi menjawab concern yang berbeda.
 
 #### Reflection Publisher-2
 
