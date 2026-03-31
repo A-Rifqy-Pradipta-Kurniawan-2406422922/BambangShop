@@ -90,5 +90,16 @@ Untuk `id` Product dan `url` Subscriber yang harus unique, `Vec` dapat dipakai t
 Kita tetap membutuhkan `DashMap`, hanya singleton saja tidak menyelesaikan masalah thread-safety. Singleton hanya menyelesaikan instance tunggal, tapi masih tidak safe saat dijalankan paralel. Pada Rocket, request dapat diproses concurrent, jadi shared state harus aman terhadap race con. `DashMap` memberi jaminan concurrent access tanpa setup manual lock. Jadi di sini pola Singleton dan thread-safe collection bukan saling menggantikan, tapi menjawab concern yang berbeda.
 
 #### Reflection Publisher-2
+>1. In the Model-View Controller (MVC) compound pattern, there is no “Service” and “Repository”. Model in MVC covers both data storage and business logic. Explain based on your understanding of design principles, why we need to separate “Service” and “Repository” from a Model?
+
+Pemisahan `Service` dan `Repository` digunakan untuk menerapkan single responsibility. Repository seharusnya fokus ke akses data dan service fokus ke business flow. Jika semuanya ditaruh di model, model akan menangani terlalu banyak hal sekaligus seperti validasi, penyimpanan, pencarian, dan proses. Dengan pemisahan ini, perubahan di sisi penyimpanan atau flow bisnis tidak langsung ikut mengubah model dan perubahan yang sedikit tidak mengubah semua flow.
+
+>2. What happens if we only use the Model? Explain your imagination on how the interactions between each model (Program, Subscriber, Notification) affect the code complexity for each model?
+
+Jika hanya memakai Model, interaksi antar `Product`, `Subscriber`, dan `Notification` akan membuat setiap model saling mengekspos terlalu banyak detail model lain. Misalnya model Product harus tahu cara mencari subscriber, model Subscriber harus tahu cara menerima atau menghapus subscription, dan model Notification harus tahu kapan dipanggil serta bagaimana dibentuk. Akibatnya dependency menjadi menumpuk, tanggung jawab membesar, dan kode lebih sulit dipahami. Kompleksitas ini umumnya terlihat seperti method yang panjang, banyak 'if' atau 'switch', dan perubahan kecil di satu bagian membuat semua harus dirubah.
+
+>3. Have you explored more about Postman? Tell us how this tool helps you to test your current work. You might want to also list which feature in Postman you are interested in or feel like it is helpful to help your Group Project or any of your future software engineering projects.
+
+Postman dapat digunakan untuk mencoba endpoint subscribe dan unsubscribe tanpa harus membuat client manual. Untuk modul ini, Dengan postman kita cepat mengatur method, path parameter, query parameter, dan JSON body lalu langsung melihat response status dan response body. Fitur yang menurut saya paling berguna untuk project berikutnya adalah automated tests pada request, yang berguna untuk checking saat endpoint mulai bertambah banyak.
 
 #### Reflection Publisher-3
